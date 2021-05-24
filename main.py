@@ -1,7 +1,8 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-import randInitialise
+import functions
+
 # %%
 def unpickle(file):
     import pickle
@@ -9,27 +10,29 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
+
 dataset=unpickle('data_batch_1')
 
 # %%
-Y=[dataset[b'labels']]
-Y=np.transpose(Y)
-Y = np.asmatrix(Y)
+y=[dataset[b'labels']]
+y=np.transpose(y)
+y = np.asmatrix(y)
 
 # %%
-num_row,num_col=X.shape
 X=[dataset[b'data']]
 X=np.transpose(X)
 X = np.asmatrix(X)
 X=np.transpose(X)
+num_row,num_col=X.shape
 m=num_row #num of training examples
 
-# %%
-new_Col=np.zeros((1, m))
-new_Col=np.transpose(new_Col)
 # %%
 X_ones=np.insert(X, 0, 1, axis=1)
 # %%
 ##########  number of neurons in hidden layer==20
-initial_Theta1=randInitialiseWeights()
+initial_Theta1=randinitialiseWeights(num_col+1,20)
+initial_Theta2=randinitialiseWeights(21,10)
+
+# %%
+
 # %%
