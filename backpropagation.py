@@ -15,7 +15,7 @@ def backpropagation(initial_Theta1,initial_Theta2,X_ones,y,lammbda,num_labels):
 
         a2=fn.sigmoid(z2)
 
-        a2=np.insert(a2, 0, 1, axis=1)
+        a2=np.insert(a2, 0, 1, axis=0)
 
         z3=np.dot(initial_Theta2,a2)
 
@@ -26,7 +26,8 @@ def backpropagation(initial_Theta1,initial_Theta2,X_ones,y,lammbda,num_labels):
 
         delta3=hyp-yT
         delta2=np.dot(np.transpose(initial_Theta2),delta3)
-        delta2=np.multiply( delta2, fn.sigmoidGradient(a2=np.insert(z2, 0, 1, axis=1)) ) 
+        a2=np.insert(z2, 0, 1, axis=0)
+        delta2=np.multiply( delta2, fn.sigmoidGradient(a2) ) 
 
         # tt1 = sig2(2:end)*a1';
         #             Theta1_grad = Theta1_grad + tt1;
