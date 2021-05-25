@@ -3,7 +3,7 @@ import numpy as np
 def randinitialiseWeights(L_in,L_out):
         
         epsilon_init = 1200
-        W =np.random.randint(epsilon_init,size = ( L_out,1+ L_in))
+        W =np.random.randint(-1*epsilon_init,epsilon_init,size = ( L_out,1+ L_in))
         W=W / 10000
         l,r= W.shape
         print(l,r)
@@ -26,28 +26,31 @@ def costFunction(X, y,initial_Theta1,initial_Theta2,num_labels,lammbda):
         J = 0
 
         for i in range(num_row):
-                a1=np.transpose(X[i-1])
-                a1 = np.insert(a1, 0, 1, axis=1)
+                a1=np.transpose(np.matrix(X[i]))
+                a1 = np.insert(a1, 0, 1, axis=0)
 
                 z2 = np.dot(initial_Theta1,a1)
 
                 a2=sigmoid(z2)
 
-                a2=np.insert(a2, 0, 1, axis=1)
+                a2=np.insert(a2, 0, 1, axis=0)
 
                 z3=np.dot(initial_Theta2,a2)
 
                 hyp=sigmoid(z3)
 
-                yt = np.zeros(num_labels,1)
-                yt[y[i-1]] = 1
+                yt = np.zeros((num_labels,1))
+
+                #print("printing yt nowwwwwwwwwww")
+                #print(yt)
+                yt[int(y[i].item())-1] = 1
 
                 # temp = -1*(yt).*log(h) - (ones(num_labels,1) - (yt)).*log(ones(num_labels,1) - h);
 
                 temp = -1*yt
                 temp = np.multiply(temp,np.log(hyp))
 
-                temp = temp - np.multiply((np.ones(num_labels,1) - yt), np.log(np.ones(num_labels,1)- hyp))
+                temp = temp - np.multiply((np.ones((num_labels,1)) - yt), np.log(np.ones((num_labels,1))- hyp))
 
                 J = J + np.sum(temp)
         

@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import functions as fn
 import gradientcheck as gc
+import checkNNgradients as checkNN
 
 # %%
 def unpickle(file):
@@ -45,13 +46,18 @@ print(initial_Theta2.shape)
 # %%
 
 grad1,grad2 = backpropagation(initial_Theta1,initial_Theta2,X_ones,y,lammbda,num_labels)
-gradchk = gc.computeGradientsCheck(X,y,initial_Theta1, initial_Theta2, num_labels, lammbda)
+#gradchk = gc.computeGradientsCheck(X,y,initial_Theta1, initial_Theta2, num_labels, lammbda)
+# %%
+#yo = checkNN.debugInitializeWeights(5,6)
+#yo
+#J = fn.costFunction(X,y,initial_Theta1,initial_Theta2,num_labels,lammbda)
+#J
 
-grad1
-grad2
-gradchk
-
-
+diff = checkNN.check_gradients(0)
+diff
+#h1
+#h2
+#hm
 # %%
 
 # %%
