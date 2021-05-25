@@ -1,7 +1,9 @@
 # %%
+from backpropagation import backpropagation
 import numpy as np
 import matplotlib.pyplot as plt
-import functions
+import functions as fn
+import gradientcheck as gc
 
 # %%
 def unpickle(file):
@@ -18,6 +20,9 @@ y=[dataset[b'labels']]
 y=np.transpose(y)
 y = np.asmatrix(y)
 
+num_labels = 10
+lammbda = 0
+
 # %%
 X=[dataset[b'data']]
 X=np.transpose(X)
@@ -30,8 +35,22 @@ m=num_row #num of training examples
 X_ones=np.insert(X, 0, 1, axis=1)
 # %%
 ##########  number of neurons in hidden layer==20
-initial_Theta1=randinitialiseWeights(num_col+1,20)
-initial_Theta2=randinitialiseWeights(21,10)
+initial_Theta1=fn.randinitialiseWeights(num_col,20)
+initial_Theta2=fn.randinitialiseWeights(20,10)
+
+print(initial_Theta1.shape)
+print(initial_Theta2.shape)
+
+
+# %%
+
+grad1,grad2 = backpropagation(initial_Theta1,initial_Theta2,X_ones,y,lammbda,num_labels)
+gradchk = gc.computeGradientsCheck(X,y,initial_Theta1, initial_Theta2, num_labels, lammbda)
+
+grad1
+grad2
+gradchk
+
 
 # %%
 
