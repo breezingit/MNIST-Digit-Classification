@@ -93,6 +93,7 @@ def predict(initial_Theta1,initial_Theta2, X):
 
 
 
+
 def fminfunc(initial_nn_params,X,y,input_layer_size,hidden_layer_size,lammbda):
 
         num_col=X.shape[1]

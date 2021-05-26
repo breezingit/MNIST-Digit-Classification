@@ -61,7 +61,11 @@ initial_nn_params = np.concatenate(( np.array(initial_Theta1.flatten()), np.arra
 # %%
 #result = op.fmin_tnc(func = fn.costFunction, x0 = initial_Theta, fprime = gradient, args = (X,y))
 # result[1]
+
 # options= {'maxiter': 1}
+
+# options= {'maxiter': 500}
+
 
 costFunction = lambda p: fn.costFunction(p,X, y, num_labels, lammbda, num_col,20)
 
@@ -85,5 +89,5 @@ h2 = fn.sigmoid(np.dot(np.concatenate([np.ones((m, 1)), h1], axis=1), np.transpo
 
 
 pred = fn.predict(Theta1, Theta2, X)
-# print('Training Set Accuracy: %f' % (np.mean(pred == y) * 100))
+print('Training Set Accuracy: %f' % (np.mean(pred == y) * 100))
 # %%
