@@ -2,66 +2,60 @@
 import numpy as np
 import functions as fn
 
-def backpropagation(initial_Theta1,initial_Theta2,X_ones,y,lammbda,num_labels):
+def backpropagation(nn_params,X,y,lammbda,num_labels):
     
-    num_row,num_col=X_ones.shape
+        global counter
 
-    Theta1_grad = np.zeros(initial_Theta1.shape)
-    Theta2_grad = np.zeros(initial_Theta2.shape)
+        m=y.size
 
-    for i in range(num_row):
-        flag1 = np.matrix(X_ones[i])
-        a1=np.transpose(flag1)
-        z2 = np.dot(initial_Theta1,a1)
+        initial_Theta1 = np.reshape(nn_params[:hidden_layer_size * (input_layer_size + 1)],
+                        (hidden_layer_size, (input_layer_size + 1)))
 
-        a2=fn.sigmoid(z2)
+        initial_Theta2 = np.reshape(nn_params[(hidden_layer_size * (input_layer_size + 1)):],
+                        (num_labels, (hidden_layer_size + 1)))
 
-        a2=np.insert(a2, 0, 1, axis=0)
+        capdelta1 = np.zeros(initial_Theta1.shape)
+        capdelta2 = np.zeros(initial_Theta2.shape)
 
-        z3=np.dot(initial_Theta2,a2)
+        eX= np.insert(X, 0, 1, axis=1)
+        eXT=np.transpose(eX)
 
-        hyp=fn.sigmoid(z3)
+        for i in range(m):
+                
+                z2 =np.dot(initial_Theta1, np.asmatrix(eXT[:,i]))
 
-        yT= np.zeros((num_labels,1))
-        yT[int(y[i].item())-1]=1
+                a2=sigmoid(z2)
 
-        delta3=hyp-yT
-        delta2=np.dot(np.transpose(initial_Theta2),delta3)
-        a2=np.insert(z2, 0, 1, axis=0)
-        if i==9999:
-            print(a2.shape)
-        a2_temp = fn.sigmoidGradient(a2)
+                a2=np.insert(a2, 0, 1, axis=0)
 
-        if i==9999:
-            print(a2_temp.shape)
-            print(delta2.shape)
-        delta2=np.multiply( delta2, a2_temp ) 
+                z3=np.dot(initial_Theta2,a2)
 
-        # tt1 = sig2(2:end)*a1';
-        #             Theta1_grad = Theta1_grad + tt1;
-        #             tt2 = sig3*a2';
-        #             Theta2_grad = Theta2_grad + tt2;
+                hyp=sigmoid(z3)
 
-        tt1 = np.dot(delta2[1:], np.transpose(a1)) 
-        Theta1_grad = Theta1_grad + tt1
+                yt = np.zeros((num_labels,1))
 
-        tt2 = np.dot(delta3, np.transpose(a2))
-        Theta2_grad = Theta2_grad + tt2
+                #print("printing yt nowwwwwwwwwww")
+                #print(yt)
+                yt[int(y[i].item())-1] = 1
 
-    Theta1_grad = Theta1_grad/num_row
-    Theta2_grad = Theta2_grad/num_row
+                delt3=hyp-yt
+                delt2=  np.dot(np.transpose(initial_Theta2[:,1:]) ,delt3)
 
+                delt2=np.multiply(delt2,sigmoidGradient(z2))
 
-    #regularize
+                capdelta2=capdelta2+ np.dot(delt3,np.transpose(a2))
+                capdelta1=capdelta1+ np.dot(delt2,np.transpose(eXT[:,i]))
 
-    add1 = lammbda/num_row*initial_Theta1
-    add1[:0] = 0
-    Theta1_grad[:,1:] = Theta1_grad[:,1:] + add1[:,1:]
-         
-    add2 = lammbda/num_row*initial_Theta2
-    add2[:,0] = 0
-    Theta2_grad[:,1:] = Theta2_grad[:,1:] + add2[:,1:]
+        Theta1_grad =np.multiply(capdelta1,1/m)
+        Theta2_grad =np.multiply(capdelta2,1/m)
 
-    return Theta1_grad,Theta2_grad
+        Theta1_grad[:, 1:input_layer_size+1] = Theta1_grad[:, 1:input_layer_size+1] +np.multiply(initial_Theta1[:, 1:input_layer_size+1], (lammbda / m))
+        Theta2_grad[:, 1:hidden_layer_size+1] = Theta2_grad[:, 1:hidden_layer_size+1] + np.multiply(initial_Theta2[:, 1:hidden_layer_size+1],(lammbda / m))
+
+        grad = np.concatenate(( x, np.array(Theta2_grad.flatten()) ), axis=1)
+        
+        counter=counter+1
+        print(counter)
+        return grad
 
         
