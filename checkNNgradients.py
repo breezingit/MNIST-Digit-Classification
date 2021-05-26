@@ -52,10 +52,10 @@ def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels):
 
 def check_gradients(lammbda):
 
-    input_layer_size = 3
-    hidden_layer_size = 5
-    num_labels = 3
-    m = 5
+    input_layer_size = 10
+    hidden_layer_size = 3
+    num_labels = 10
+    m = 10
 
     ##generating random test data 
 
@@ -70,18 +70,23 @@ def check_gradients(lammbda):
     for i in range(m):
         y_check[i] = ((i+1)%num_labels) +1 
 
-    #nn_params = np.concatenate(( np.array(Theta1.flatten()), np.array(Theta2.flatten())), axis=0)
+    nn_params = np.concatenate(( np.array(Theta1.flatten()), np.array(Theta2.flatten())), axis=0)
 
-    #cost = fn.costFunction(X_check,y_check,Theta1,Theta2,num_labels,lammbda)
+    cost = fn.costFunction(nn_params,X_check,y_check,num_labels,lammbda,input_layer_size,hidden_layer_size)
+    
     Xc_ones=np.insert(X_check, 0, 1, axis=1)
-    grad1,grad2 = bp.backpropagation(Theta1,Theta2,Xc_ones,y_check,lammbda,num_labels)
 
+    grad1,grad2 = bp.backpropagation(Theta1,Theta2,Xc_ones,y_check,lammbda,num_labels)
     #numgrad = computeNumericalGradient(costFunc, nn_params);
+    
     numgrad1,numgrad2 = computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels)
 
-    grad = np.concatenate(( np.array(grad1.flatten()), np.array(grad2.flatten())), axis=0)
-    numgrad = nn_params = np.concatenate(( np.array(numgrad1.flatten()), np.array(numgrad2.flatten())), axis=0)
+    grad = np.concatenate( ( np.array(grad1.flatten()), np.array(grad2.flatten()) ), axis=1)
     
+    numgrad = nn_params = np.concatenate(( np.array(numgrad1.flatten()), np.array(numgrad2.flatten()) ), axis=0)
+    # numgrad=[numgrad]
+    # numgrad=np.array(numgrad)
+
     diff = np.linalg.norm(numgrad-grad)/ np.linalg.norm(numgrad+grad)
 
     print("if gradients are correct, diff should be less than 1e-9")
