@@ -85,7 +85,11 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
 
         for i in range(m):
                 
-                z2 =np.dot(initial_Theta1, np.asmatrix(eXT[:,i]))
+
+                flag1 = np.matrix(eX[i])
+                a1=np.transpose(flag1)
+                z2 = np.dot(initial_Theta1,a1)
+                #z2 =np.dot(initial_Theta1, np.matrix(eXT[:,i]))
 
                 a2=sigmoid(z2)
 
@@ -107,7 +111,7 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
                 delt2=np.multiply(delt2,sigmoidGradient(z2))
 
                 capdelta2=capdelta2+ np.dot(delt3,np.transpose(a2))
-                capdelta1=capdelta1+ np.dot(delt2,np.transpose(eXT[:,i]))
+                capdelta1=capdelta1+ np.dot(delt2,np.matrix(eX[i,:]))
 
         Theta1_grad =np.multiply(capdelta1,1/m)
         Theta2_grad =np.multiply(capdelta2,1/m)

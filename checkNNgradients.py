@@ -19,7 +19,7 @@ def debugInitializeWeights(fan_out, fan_in):
     return w
 
 
-def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels):
+def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels,input_layer_size,hidden_layer_size):
     numgrad1 = np.zeros((Theta1.shape))
     numgrad2 = np.zeros((Theta2.shape))
     perturb1 = np.zeros((Theta1.shape))
@@ -30,8 +30,13 @@ def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels):
         for j in range(Theta1.shape[1]):
 
             perturb1[i][j]= e
-            loss1 = fn.costFunction(X_check,y_check,Theta1-perturb1,Theta2,num_labels,lammbda)
-            loss2 = fn.costFunction(X_check,y_check,Theta1+perturb1,Theta2,num_labels,lammbda)
+            #nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_layer_size
+
+            nn_params1 = np.concatenate(( np.array((Theta1-perturb1).flatten()), np.array((Theta2).flatten()) ))
+            nn_params2 = np.concatenate(( np.array((Theta1+perturb1).flatten()), np.array((Theta2).flatten()) ))
+
+            loss1,_ = fn.costFunction(nn_params1,X_check,y_check,num_labels,lammbda,input_layer_size,hidden_layer_size)
+            loss2,_ = fn.costFunction(nn_params2,X_check,y_check,num_labels,lammbda,input_layer_size,hidden_layer_size)
 
             numgrad1[i][j] = (loss2 - loss1) / (2*e)
             perturb1[i][j] = 0
@@ -40,9 +45,13 @@ def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels):
         for j in range(Theta2.shape[1]):
 
             perturb2[i][j]= e
-            loss1 = fn.costFunction(X_check,y_check,Theta1,Theta2-perturb2,num_labels,lammbda)
-            loss2 = fn.costFunction(X_check,y_check,Theta1,Theta2+perturb2,num_labels,lammbda)
 
+            nn_params1 = np.concatenate(( np.array((Theta1).flatten()), np.array((Theta2-perturb2).flatten()) ))
+            nn_params2 = np.concatenate(( np.array((Theta1).flatten()), np.array((Theta2+perturb2).flatten()) ))
+
+
+            loss1,_ = fn.costFunction(nn_params1,X_check,y_check,num_labels,lammbda,input_layer_size,hidden_layer_size)
+            loss2,_ = fn.costFunction(nn_params2,X_check,y_check,num_labels,lammbda,input_layer_size,hidden_layer_size)
             numgrad2[i][j] = (loss2 - loss1) / (2*e)
             perturb2[i][j] = 0
 
@@ -79,7 +88,7 @@ def check_gradients(lammbda):
     grad1,grad2 = bp.backpropagation(Theta1,Theta2,Xc_ones,y_check,lammbda,num_labels)
     #numgrad = computeNumericalGradient(costFunc, nn_params);
     
-    numgrad1,numgrad2 = computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels)
+    numgrad1,numgrad2 = computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels,input_layer_size,hidden_layer_size)
 
     grad = np.concatenate( ( np.array(grad1.flatten()), np.array(grad2.flatten()) ), axis=1)
     
