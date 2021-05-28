@@ -20,7 +20,7 @@ dataset=unpickle('data_batch_1')
 y=[dataset[b'labels']]
 y=np.transpose(y)
 y = np.asmatrix(y)
-
+print(y.shape)
 num_labels = 10
 lammbda = 4
 
@@ -36,50 +36,34 @@ input_layer_size=num_col
 hidden_layer_size=20
 
 # %%
-X_ones=np.insert(X, 0, 1, axis=1)
-# %%
 ##########  number of neurons in hidden layer==20
 initial_Theta1=fn.randinitialiseWeights(num_col,20)
 initial_Theta2=fn.randinitialiseWeights(20,10)
 
-# %%5
-
-#grad1,grad2 = backpropagation(initial_Theta1,initial_Theta2,X_ones,y,lammbda,num_labels)
-#gradchk = gc.computeGradientsCheck(X,y,initial_Theta1, initial_Theta2, num_labels, lammbda)
-# %%
-#yo = checkNN.debugInitializeWeights(5,6)
-#yo
-#J = fn.costFunction(X,y,initial_Theta1,initial_Theta2,num_labels,lammbda)
-
-#gradc=gc.computeGradientsCheck(X, y, initial_Theta1, initial_Theta2, num_labels, lammbda,20,3072,10)
-
-# %%
-# diff = checkNN.check_gradients(lammbda)
-# diff
 
 initial_nn_params = np.concatenate(( np.array(initial_Theta1.flatten()), np.array(initial_Theta2.flatten()) ))
-# %%
-#result = op.fmin_tnc(func = fn.costFunction, x0 = initial_Theta, fprime = gradient, args = (X,y))
-# result[1]
-
-# options= {'maxiter': 1}
-
-# options= {'maxiter': 500}
-
-
-costFunction = lambda p: fn.costFunction(p,X, y, num_labels, lammbda, num_col,20)
-
-# res = op.minimize(costFunction, initial_nn_params, jac=True, method='TNC', options=options) 
-
-# nn_params=res.x
-
-Theta1,Theta2=fn.fminfunc(initial_nn_params, X, y, input_layer_size, hidden_layer_size,lammbda)
-
 
 # %%
-# Theta1 = np.reshape(nn_params[:hidden_layer_size * (input_layer_size + 1)],(hidden_layer_size, (input_layer_size + 1)))
 
-# Theta2 = np.reshape(nn_params[(hidden_layer_size * (input_layer_size + 1)):],(num_labels, (hidden_layer_size + 1)))
+# these check variables were used to find if the backprop algo was working fine using the check_gradients function
+
+# X_check=fn.randinitialiseWeights(19, 50)
+# y_check=fn.randinitialiseWeights(0, 50)
+
+# thetacheck1=fn.randinitialiseWeights(20, 5)
+# thetacheck2=fn.randinitialiseWeights(5, 10)
+
+# nn_params =checkNN.check_gradients(X_check, y_check, thetacheck1, thetacheck2, 0, 5,20, 10)
+
+#nn_params=gc.gradientDescentnn(X, y, initial_nn_params, 0.8, 20, 1, input_layer_size, hidden_layer_size, num_labels)
+
+# nn_params=gc.gradientDescentnn(X, y, initial_nn_params, 0.8, 10, 1, input_layer_size, hidden_layer_size, num_labels)
+
+
+#nn_params=np.transpose(np.asmatrix(nn_params))
+# %%
+Theta1 = nn_params[:((input_layer_size+1) * hidden_layer_size)].reshape(hidden_layer_size,input_layer_size+1)
+Theta2 = nn_params[((input_layer_size +1)* hidden_layer_size ):].reshape(num_labels,hidden_layer_size+1)
 
 
 
