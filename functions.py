@@ -1,7 +1,7 @@
 import numpy as np
 import backpropagation as bp
 import scipy
-counter=0
+
 
 def randinitialiseWeights(L_in,L_out):
         
@@ -25,11 +25,15 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
 
         m=y.size
 
-        initial_Theta1 = np.reshape(nn_params[:hidden_layer_size * (input_layer_size + 1)],
-                        (hidden_layer_size, (input_layer_size + 1)))
+        # initial_Theta1 = np.reshape(nn_params[:hidden_layer_size * (input_layer_size + 1)],
+        #                 (hidden_layer_size, (input_layer_size + 1)))
 
-        initial_Theta2 = np.reshape(nn_params[(hidden_layer_size * (input_layer_size + 1)):],
-                        (num_labels, (hidden_layer_size + 1)))
+        # initial_Theta2 = np.reshape(nn_params[(hidden_layer_size * (input_layer_size + 1)):],
+        #                 (num_labels, (hidden_layer_size + 1)))
+
+
+        initial_Theta1 = nn_params[:((input_layer_size+1) * hidden_layer_size)].reshape(hidden_layer_size,input_layer_size+1)
+        initial_Theta2 = nn_params[((input_layer_size +1)* hidden_layer_size ):].reshape(num_labels,hidden_layer_size+1)
 
         J = 0
 
@@ -80,7 +84,55 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
 
         J = J + reg
 
-        return J
+        capdelta1 = np.zeros(initial_Theta1.shape)
+        capdelta2 = np.zeros(initial_Theta2.shape)
+
+        eX= np.insert(X, 0, 1, axis=1)
+        eXT=np.transpose(eX)
+
+        for i in range(m):
+                
+                z2 = np.dot(initial_Theta1,eXT[:,i])
+
+                a2=sigmoid(z2)
+
+                a2=np.insert(a2, 0, 1, axis=0)
+
+                z3=np.dot(initial_Theta2,a2)
+
+                hyp=sigmoid(z3)
+
+                yt = np.zeros((num_labels,1))
+
+                #print("printing yt nowwwwwwwwwww")
+                #print(yt)
+                yt[int(y[i].item())-1] = 1
+
+                #delt3=hyp-yt
+                delt3=np.transpose( np.asmatrix([hyp]))-yt
+                delt2=  np.dot(np.transpose(initial_Theta2[:,1:]) ,delt3)
+
+
+                z2=np.asmatrix([sigmoidGradient(z2)])
+
+                delt2=np.multiply(delt2,np.transpose(z2))
+                a2=np.asmatrix([a2])  # using as matrix gave out transpose(a2)
+                capdelta2=capdelta2+ np.dot(delt3,a2)
+                
+                var=np.asmatrix([eXT[:,i]])
+                capdelta1=capdelta1+ np.dot(delt2,(var))
+
+        Theta1_grad =np.multiply(capdelta1,1/m)
+        Theta2_grad =np.multiply(capdelta2,1/m)
+
+        Theta1_grad[:, 1:input_layer_size+1] = Theta1_grad[:, 1:input_layer_size+1] +np.multiply(initial_Theta1[:, 1:input_layer_size+1], (lammbda / m))
+        Theta2_grad[:, 1:hidden_layer_size+1] = Theta2_grad[:, 1:hidden_layer_size+1] + np.multiply(initial_Theta2[:, 1:hidden_layer_size+1],(lammbda / m))
+
+        #grad = np.concatenate(( , np.array(Theta2_grad.flatten()) ), axis=1)
+        
+        
+        return J,Theta1_grad,Theta2_grad
+
 
 def predict(initial_Theta1,initial_Theta2, X):
         m = X.shape[0]
@@ -91,23 +143,3 @@ def predict(initial_Theta1,initial_Theta2, X):
         p = np.argmax(h2, axis=1)
         return p
 
-
-
-
-def fminfunc(initial_nn_params,X,y,input_layer_size,hidden_layer_size,lammbda):
-
-        num_col=X.shape[1]
-
-        # costFunction = lambda p: fn.costFunction(p,X, y, num_labels, lammbda, num_col,20)
-
-        result = scipy.optimize.fmin_cg(costFunction, x0=initial_nn_params, fprime=bp.backpropagation, \
-                                args=(np.array(X.flatten()),y,lammbda),maxiter=50,disp=True,full_output=True)
-
-        params=result[0]
-
-        theta1 = params[:(input_layer_size+1)*hidden_layer_size] \
-            .reshape((hidden_layer_size,input_layer_size+1))
-        theta2 = params[(input_layer_size+1)*hidden_layer_size:] \
-            .reshape((output_layer_size,hidden_layer_size+1))
-    
-        return theta1, theta2
