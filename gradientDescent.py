@@ -20,10 +20,11 @@ def gradientDescentnn(X,y,initial_nn_params,alpha,num_iters,lammbda,input_layer_
         J,grad1, grad2 = fn.costFunction(nn_params, X, y, num_labels, lammbda, input_layer_size, hidden_layer_size)
         Theta1 = Theta1 - (alpha * grad1)
         Theta2 = Theta2 - (alpha * grad2)
-        print(J)
-        print(" ")
+        alpha=1/(100+i*50)
+        print(counter+1,J)
+        
         counter=counter+1
-        print(counter)
+        
     
     nn_params = np.concatenate((np.array( Theta1.flatten()),np.array( Theta2.flatten())),axis=1)
     return nn_params

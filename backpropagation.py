@@ -48,7 +48,7 @@ def backpropagation(nn_params,X,y,lammbda,num_labels,hidden_layer_size,input_lay
 
                 #print("printing yt nowwwwwwwwwww")
                 #print(yt)
-                yt[int(y[i].item())-1] = 1
+                yt[int(y[i].item())] = 1
 
                 # temp = -1*(yt).*log(h) - (ones(num_labels,1) - (yt)).*log(ones(num_labels,1) - h);
 

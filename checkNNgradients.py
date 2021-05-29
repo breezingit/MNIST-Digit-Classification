@@ -1,6 +1,7 @@
 import numpy as np
 import functions as fn
 import backpropagation as bp
+import sys
 
 ### creates a small neural network to check back propagation gradients ###
 
@@ -55,45 +56,58 @@ def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels,in
             numgrad2[i][j] = (loss2 - loss1) / (2*e)
             perturb2[i][j] = 0
 
-    return numgrad1, numgrad2
+
+    grad = np.concatenate(( np.array(numgrad1.flatten())  , np.array(numgrad2.flatten()) ), axis=0)
+    return grad
     
 
 
-def check_gradients(X_check,y_check,Theta1,Theta2,lammbda, hidden_layer_size,input_layer_size,num_labels):
+def check_gradients(lammbda):
 
-    ##generating X using same function
+    input_layer_size=3
+    hidden_layer_size=5
+    num_labels=3
+    m=5
 
-    
-    
-    #y  = 1 + np.transpose( np.mod(1:m, num_labels) )
-    y_check = np.zeros((num_labels,1))
-    for i in range(num_labels):
-        y_check[i] = ((i+1)%num_labels) +1 
+    X_check=fn.randinitialiseWeights(check_input_size-1,check_hidden_size)
+
+    y_check=np.zeros((check_m,1))
+
+    for i in range(check_m):
+        y_check[i]=i%check_numlabels
+
+
+
+    thetacheck1=fn.randinitialiseWeights(check_input_size, check_hidden_size)
+    thetacheck2=fn.randinitialiseWeights(check_hidden_size,check_numlabels)
 
     nn_params = np.concatenate(( np.array(Theta1.flatten()), np.array(Theta2.flatten())), axis=0)
 
+    nn_params=np.asmatrix(nn_params)
+    nn_params=np.transpose(nn_params)
     #cost = fn.costFunction(nn_params,X_check,y_check,num_labels,lammbda,input_layer_size,hidden_layer_size)
     
     #Xc_ones=np.insert(X_check, 0, 1, axis=1)
 
-    _,grad1,grad2 = fn.costFunction(nn_params, X_check, y_check,10, 0, 20, 5)
+    J,grad = fn.costFunction(nn_params, X_check, y_check, num_labels, lammbda, input_layer_size, hidden_layer_size)
     #numgrad = computeNumericalGradient(costFunc, nn_params);
     
-    numgrad1,numgrad2 = computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels,input_layer_size,hidden_layer_size)
+    numgrad = computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels,input_layer_size,hidden_layer_size)
 
-    grad = np.concatenate( ( np.array(grad1.flatten()), np.array(grad2.flatten()) ), axis=1)
+    # grad = np.concatenate( ( np.array(grad1.flatten()), np.array(grad2.flatten()) ), axis=1)
     
-    numgrad = nn_params = np.concatenate(( np.array(numgrad1.flatten()), np.array(numgrad2.flatten()) ), axis=0)
+    # numgrad = nn_params = np.concatenate(( np.array(numgrad1.flatten()), np.array(numgrad2.flatten()) ), axis=0)
     # numgrad=[numgrad]
     # numgrad=np.array(numgrad)
 
-    #diff = np.linalg.norm(numgrad-grad)/ np.linalg.norm(numgrad+grad)
 
-    # print("if gradients are correct, diff should be less than 1e-9")
-    # print("diff: ",diff)
+    diff = np.linalg.norm(numgrad-grad)/ np.linalg.norm(numgrad+grad)
 
     #return diff
     
     for i in range(len(numgrad)):
         print("Numerical Gradient = %f. BackProp Gradient = %f."%(grad[0][i],numgrad[i]))
+
+    print("if gradients are correct, diff should be less than 1e-9")
+    print("diff: ",diff)
 
