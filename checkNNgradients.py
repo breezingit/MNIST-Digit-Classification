@@ -3,23 +3,6 @@ import functions as fn
 import backpropagation as bp
 import sys
 
-### creates a small neural network to check back propagation gradients ###
-
-def debugInitializeWeights(fan_out, fan_in):
-
-    w = np.zeros((fan_out, 1 + fan_in))
-    # we initialise it with sin to ensure it remains same
-
-    k = 1
-    for i in range(fan_out):
-
-        for j in range(fan_in+1):
-
-            w[i, j] = np.sin(k)
-            k = k+1
-    return w
-
-
 def computeNumericalGradient(Theta1,Theta2,X_check,y_check,lammbda,num_labels,input_layer_size,hidden_layer_size):
     numgrad1 = np.zeros((Theta1.shape))
     numgrad2 = np.zeros((Theta2.shape))
