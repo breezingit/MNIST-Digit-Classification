@@ -5,10 +5,15 @@ import scipy
 
 def randinitialiseWeights(L_in,L_out):
         
-        epsilon_init = 44
-        W =np.random.randint(-1*epsilon_init,epsilon_init,size = ( L_out,1+ L_in))
-        W=np.divide(W, 1000)
+        # epsilon_init = 44
+        # W =np.random.randint(-1*epsilon_init,epsilon_init,size = ( L_out,1+ L_in))
+        # W=np.divide(W, 1000)
      
+        # return W
+        epi = (6**1/2) / (L_in + L_out)**1/2
+    
+        W = np.random.rand(L_out,L_in +1) *(2*epi) -epi
+        
         return W
 
 def sigmoid(X):
@@ -57,7 +62,9 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
 
                 #print("printing yt nowwwwwwwwwww")
                 #print(yt)
-                yt[int(y[i].item())-1] = 1
+                #yt[int(y[i].item())-1] = 1
+
+                yt[int(y[i])]=1
 
                 # temp = -1*(yt).*log(h) - (ones(num_labels,1) - (yt)).*log(ones(num_labels,1) - h);
 
@@ -106,21 +113,23 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
 
                 #print("printing yt nowwwwwwwwwww")
                 #print(yt)
-                yt[int(y[i].item())-1] = 1
+                yt[int(y[i])] = 1
 
-                #delt3=hyp-yt
-                delt3=np.transpose( np.asmatrix([hyp]))-yt
+                delt3=hyp-yt
+                #delt3=np.transpose( np.asmatrix([hyp]))-yt
                 delt2=  np.dot(np.transpose(initial_Theta2[:,1:]) ,delt3)
 
 
-                z2=np.asmatrix([sigmoidGradient(z2)])
+                #z2=np.asmatrix([sigmoidGradient(z2)])
 
-                delt2=np.multiply(delt2,np.transpose(z2))
-                a2=np.asmatrix([a2])  # using as matrix gave out transpose(a2)
-                capdelta2=capdelta2+ np.dot(delt3,a2)
+                delt2=np.multiply(delt2,sigmoidGradient(z2))
+                #a2=np.asmatrix([a2])  # using as matrix gave out transpose(a2)
+                #capdelta2=capdelta2+ np.dot(delt3,a2)
+
+                capdelta2=capdelta2+ np.dot(delt3,np.transpose(a2))
                 
-                var=np.asmatrix([eXT[:,i]])
-                capdelta1=capdelta1+ np.dot(delt2,(var))
+                #var=np.asmatrix([eXT[:,i]])
+                capdelta1=capdelta1+ np.dot(delt2,np.transpose(eXT[:,i]))
 
         Theta1_grad =np.multiply(capdelta1,1/m)
         Theta2_grad =np.multiply(capdelta2,1/m)
@@ -128,10 +137,15 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
         Theta1_grad[:, 1:input_layer_size+1] = Theta1_grad[:, 1:input_layer_size+1] +np.multiply(initial_Theta1[:, 1:input_layer_size+1], (lammbda / m))
         Theta2_grad[:, 1:hidden_layer_size+1] = Theta2_grad[:, 1:hidden_layer_size+1] + np.multiply(initial_Theta2[:, 1:hidden_layer_size+1],(lammbda / m))
 
-        #grad = np.concatenate(( , np.array(Theta2_grad.flatten()) ), axis=1)
+        # Theta1_grad[:, 1:input_layer_size+1] = Theta1_grad[:, 1:input_layer_size+1] +initial_Theta1[:, 1:input_layer_size+1]*(lammbda / m)
+        # Theta2_grad[:, 1:hidden_layer_size+1] = Theta2_grad[:, 1:hidden_layer_size+1] +initial_Theta2[:, 1:hidden_layer_size+1]*(lammbda / m)
+
+        # grad = np.concatenate(( np.array(Theta1_grad.flatten())  , np.array(Theta2_grad.flatten()) ), axis=1)
         
         
         return J,Theta1_grad,Theta2_grad
+
+        # return J,grad
 
 
 def predict(initial_Theta1,initial_Theta2, X):
@@ -140,6 +154,9 @@ def predict(initial_Theta1,initial_Theta2, X):
         p = np.zeros(m)
         h1 = sigmoid(np.dot(np.concatenate([np.ones((m, 1)), X], axis=1),np.transpose(initial_Theta1)))
         h2 = sigmoid(np.dot(np.concatenate([np.ones((m, 1)), h1], axis=1), np.transpose(initial_Theta2)))
+        
+        
         p = np.argmax(h2, axis=1)
+        
         return p
 

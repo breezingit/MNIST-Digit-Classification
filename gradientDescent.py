@@ -27,5 +27,3 @@ def gradientDescentnn(X,y,initial_nn_params,alpha,num_iters,lammbda,input_layer_
     
     nn_params = np.concatenate((np.array( Theta1.flatten()),np.array( Theta2.flatten())),axis=1)
     return nn_params
-
-
