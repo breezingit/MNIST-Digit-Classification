@@ -1,8 +1,9 @@
 import numpy as np
-import backpropagation as bp
-from scipy.special import expit
-from scipy.special import softmax
+import matplotlib.pyplot as plt
+import neuralNetwork as nn
+
 counter=0
+
 def randinitialiseWeights(L_in,L_out):
         
         # epsilon_init = 44
@@ -12,27 +13,20 @@ def randinitialiseWeights(L_in,L_out):
         # return W
         epi = (6**1/2) / (L_in + L_out)**1/2
     
-        W = np.random.rand(L_out,L_in +1) *(2*epi) -epi
+        W = np.random.rand(L_out,L_in+1) *(2*epi) -epi
+        # W = np.random.rand(L_out,L_in) *(2*epi) 
         
         return W
 
-def sigmoid(X):
-        return expit(X)
+def relu(Z):
+    return np.maximum(Z, 0)
 
-def relu(X):
-        return np.maximum(np.multiply(0.01,X),X)
-        
+def reluGradient(Z):
+    return Z > 0
 
-
-def sigmoidGradient(z):
-        # g=np.multiply( sigmoid(z), (np.ones(z.shape)-sigmoid(z)) )
-        g=expit(z)
-        return np.multiply(g,(1-g))
-
-def reluGradient(z):
-        z[z<=0]=0.01
-        z[z>0]=1
-        return z
+def softmax(Z):
+    A = np.exp(Z) / sum(np.exp(Z))
+    return A
 
 
 def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_layer_size):
@@ -73,10 +67,15 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
 
                 # hyp=expit(z3)
                 hyp=softmax(z3)
-
-                for t in range(hyp.size):
-                        if(hyp[t]<=0):
-                                hyp[t]=0.0000001
+                
+                hyp[hyp==0]=10**-15
+                hyp[hyp==1]=1-10**-15
+                
+                # for j in range(hyp.shape[0]):
+                #         hyp[j]=0.001
+                # for t in range(hyp.shape[0]):
+                #         if(hyp[t]<=0):
+                #                 hyp[t]=0.001
                 
                 yt = np.zeros((num_labels,1))
 
@@ -91,10 +90,19 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
                 # temp = -1*(yt).*log(h) - (ones(num_labels,1) - (yt)).*log(ones(num_labels,1) - h);
 
                 temp = -1*yt
-                temp = np.multiply(temp,np.log(hyp))
 
                 
-                temp = temp - np.multiply((np.ones((num_labels,1)) - yt), np.log(np.ones((num_labels,1))- hyp))
+                temp = np.multiply(temp,np.log(hyp))
+                # temp = np.multiply(temp,np.log(np.array(hyp).astype(float)))
+
+                
+                
+                
+                one_minus_hyp=np.ones(hyp.shape)-hyp
+
+                log_one_hyp=np.log(one_minus_hyp)
+                
+                temp = temp - np.multiply((np.ones((num_labels,1)) - yt), log_one_hyp)
 
                 J = J + np.sum(temp)
         
@@ -140,7 +148,8 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
                 # hyp=expit(z3)
                 hyp=softmax(z3)
 
-                
+                hyp[hyp==0]=10**-15
+                hyp[hyp==1]=1-10**-15
 
                 yt = np.zeros((num_labels,1))
 
@@ -187,15 +196,29 @@ def costFunction(nn_params, X, y ,num_labels,lammbda,input_layer_size,hidden_lay
         return J,grad
 
 
-def predict(initial_Theta1,initial_Theta2, X):
+def get_accuracy(initial_Theta1,initial_Theta2, X,y):
         m = X.shape[0]
-
+        print(X.shape)
         p = np.zeros(m)
         h1 = relu(np.dot(np.concatenate([np.ones((m, 1)), X], axis=1),np.transpose(initial_Theta1)))
-        h2 = relu(np.dot(np.concatenate([np.ones((m, 1)), h1], axis=1), np.transpose(initial_Theta2)))
+        h2 = softmax(np.dot(np.concatenate([np.ones((m, 1)), h1], axis=1), np.transpose(initial_Theta2)))
         
         
         p = np.argmax(h2, axis=1)
+        print('Training Set Accuracy: %f' % (np.mean(p == y) * 100))
         
-        return p
+
+def predict(X,Y,Theta1,Theta2,index):
+        test = X[index,:, None]
+        m=X.shape[0]
+        h1 = relu(np.dot(np.concatenate([np.ones((m,1)), X], axis=1),np.transpose(Theta1)))
+        h2 = softmax(np.dot(np.concatenate([np.ones((m,1)), h1], axis=1), np.transpose(Theta2)))
+        predictions = np.argmax(h2,1)
+        
+        print("Prediction: ", predictions[index][0])
+        
+        test = test.reshape((28, 28)) * 255
+        plt.gray()
+        plt.imshow(test, interpolation='nearest')
+        plt.show()
 
